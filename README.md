@@ -6,7 +6,7 @@ Execute either the .exe executable OR compile and run the main.cpp file yourself
 
 Add the amount of people participating in the Secret Santa process (more than 2 people and of course different names).
 
-After you enter each name, the same amount of fiels will be created in the respective directory where the program was executed. Each file has the name of a person who particiapted and inside each file is the name of the person who they are going to get a gift for. Simply send the file without opening it to its respective owner and only open the file with your name in.
+After you enter each name, the same amount of files will be created in the respective directory where the program was executed. Each file has the name of a person who particiapted and inside each file is the name of the person whom they are going to get a gift for. Simply send the file without opening it to its respective owner and only open the file with your name in.
 
 -------------------------------------------------------How it works------------------------------------------------------------
 
