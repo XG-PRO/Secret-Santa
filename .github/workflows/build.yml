@@ -1,0 +1,52 @@
+# Builds Windows, macOS and Linux on every push to main.
+# Pushing a v* tag also publishes a GitHub release with all three.
+name: Build
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, asset: Secret-Santa-Windows.exe }
+          - { os: macos-latest, asset: Secret-Santa-macOS.zip }
+          - { os: ubuntu-22.04, asset: Secret-Santa-Linux.tar.gz }  # older glibc runs on more distros
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxfixes-dev libxrender-dev libfontconfig1-dev
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      - run: cmake --build build --config Release --parallel
+      - name: Package
+        run: |
+          case "$RUNNER_OS" in
+            Windows) cp "build/Release/Secret Santa.exe" "${{ matrix.asset }}" ;;
+            macOS)   codesign --force --deep -s - "build/Secret Santa.app"
+                     ditto -c -k --keepParent "build/Secret Santa.app" "${{ matrix.asset }}" ;;
+            Linux)   tar -czf "${{ matrix.asset }}" -C build "Secret Santa" ;;
+          esac
+      - uses: actions/upload-artifact@v7
+        with: { name: "${{ matrix.asset }}", path: "${{ matrix.asset }}" }
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with: { merge-multiple: true }
+      - run: gh release create "$GITHUB_REF_NAME" Secret-Santa-* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+        env: { GH_TOKEN: "${{ github.token }}" }

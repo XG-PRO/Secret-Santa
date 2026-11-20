@@ -1,6 +1,8 @@
-# Only source and docs are tracked; envelope folders and built exes stay local.
+# Only source and docs are tracked; envelope folders, builds and exes stay local.
 /*
 !/.gitignore
+!/.github/
+!/CMakeLists.txt
 !/LICENSE
 !/README.md
 !/src/
