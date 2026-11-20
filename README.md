@@ -1,15 +1,20 @@
 # Secret-Santa
 
-A tool to assist in the secret santa process without much hassle.
+A small Windows app that draws Secret Santa names fairly and saves a private "envelope" file for each person. The result is never shown on screen.
 
-Execute either the .exe executable OR compile and run the main.cpp file yourself.
+## Use
 
-Add the amount of people participating in the Secret Santa process (more than 2 people and of course different names).
+1. Download `Secret.Santa.exe` from the [latest release](https://github.com/XG-PRO/Secret-Santa/releases/latest) and run it.
+2. Type each name and press Enter. Select a name and press Delete to remove it.
+3. Leave **No two people draw each other** ticked if you don't want A to buy for B while B buys for A.
+4. Choose a folder and click **Draw names**.
 
-After you enter each name, the same amount of files will be created in the respective directory where the program was executed. Each file has the name of a person who particiapted and inside each file is the name of the person whom they are going to get a gift for. Simply send the file without opening it to its respective owner and only open the file with your name in.
+Each person gets a folder, `<Name>\<Name>.txt`, naming who they buy for. Send everyone only their own file.
 
--------------------------------------------------------How it works------------------------------------------------------------
+## How it works
 
-The process works by creating 2 string arrays with all the names, then creating a file for each cell in the first array and writing a random name in that file from the second array. The name is then deleted from the second array and the process continues until everyone has been assigned a secret santa!
+The names are shuffled with the operating system's secure random generator (Fisher-Yates). If anyone drew themselves, or two people drew each other when that rule is on, it shuffles again. Every valid draw is equally likely.
 
-The default file format is .txt but that can change from the core file if you want. Enjoy!
+## Build
+
+Needs g++ for Windows, e.g. `winget install BrechtSanders.WinLibs.POSIX.UCRT`. Run `src\build.bat`, which creates `Secret Santa.exe` in the repository folder.

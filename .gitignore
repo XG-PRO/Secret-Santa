@@ -1,0 +1,6 @@
+# Only source and docs are tracked; envelope folders and built exes stay local.
+/*
+!/.gitignore
+!/LICENSE
+!/README.md
+!/src/
