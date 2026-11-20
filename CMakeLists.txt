@@ -13,7 +13,10 @@ foreach(opt FLTK_BUILD_TEST FLTK_BUILD_EXAMPLES FLTK_BUILD_FLUID FLTK_BUILD_FLTK
   set(${opt} OFF CACHE BOOL "" FORCE)
 endforeach()
 include(FetchContent)
-FetchContent_Declare(fltk GIT_REPOSITORY https://github.com/fltk/fltk.git GIT_TAG release-1.4.5 GIT_SHALLOW TRUE)
+# branch-1.4 commit with the MSVC copysign/rint fix (not in release 1.4.5); switch to 1.4.6 once released.
+FetchContent_Declare(fltk
+  URL https://github.com/fltk/fltk/archive/a4b9c2975a2d67435300e3f96a02c751dc458a04.tar.gz
+  URL_HASH SHA256=08db25c20ca58def2e6f6f0485cb97f95c8647820fc3044c2a942d0083b53889)
 FetchContent_MakeAvailable(fltk)
 
 add_executable(santa WIN32 MACOSX_BUNDLE src/main.cpp)
