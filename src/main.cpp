@@ -13,7 +13,7 @@
 static std::vector<std::string> names;
 static Fl_Input *name_in, *folder_in;
 static Fl_Hold_Browser* list;
-static Fl_Check_Button* no_mutual;
+static Fl_Check_Button *no_mutual, *own_folder;
 static Fl_Box* status;
 
 static void set_status(const std::string& s, bool error = false) {
@@ -57,17 +57,18 @@ static void browse_cb(Fl_Widget*, void*) {
 static void draw_cb(Fl_Widget*, void*) {
     bool nm = no_mutual->value();
     if (names.size() < (nm ? 3u : 2u)) return set_status(nm ? "Add at least 3 people for this rule." : "Add at least 2 people.", true);
+    bool own = own_folder->value();
     auto folder = santa::u8path(folder_in->value());
     for (const auto& n : names)
-        if (std::filesystem::exists(santa::envelope(folder, n))) {
+        if (std::filesystem::exists(santa::envelope(folder, n, own))) {
             if (fl_choice("This folder already has envelopes from an earlier draw. Replace them?", "Cancel", "Replace", nullptr) != 1) return;
             break;
         }
-    if (!santa::write_envelopes(folder, names, santa::draw(names.size(), nm)))
+    if (!santa::write_envelopes(folder, names, santa::draw(names.size(), nm), own))
         return set_status("Couldn't save the envelopes in that folder.", true);
     set_status("Done! " + std::to_string(names.size()) + " envelopes saved.");
-    fl_message("Envelopes saved in:\n%s\n\nEach person has a folder with a file naming who they buy for.\nSend everyone only their own file.",
-               folder_in->value());
+    fl_message("Envelopes saved in:\n%s\n\nEach person has %s naming who they buy for.\nSend everyone only their own file.",
+               folder_in->value(), own ? "a folder with a file" : "a file");
 }
 
 int main(int argc, char** argv) {
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
     Fl::background(250, 250, 250);
     fl_message_title_default("Secret Santa");
 
-    auto* win = new Fl_Window(400, 490, "Secret Santa");
+    auto* win = new Fl_Window(400, 516, "Secret Santa");
     auto* title = new Fl_Box(20, 12, 360, 40, "Secret Santa");
     title->labelfont(FL_HELVETICA_BOLD);
     title->labelsize(26);
@@ -93,11 +94,13 @@ int main(int argc, char** argv) {
 
     no_mutual = new Fl_Check_Button(16, 324, 364, 26, "No two people draw each other");
     no_mutual->value(1);
+    own_folder = new Fl_Check_Button(16, 350, 364, 26, "Put each file in its own folder");
+    own_folder->value(1);
 
-    auto* label = new Fl_Box(20, 356, 360, 20, "Save envelopes in:");
+    auto* label = new Fl_Box(20, 382, 360, 20, "Save envelopes in:");
     label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-    folder_in = new Fl_Input(20, 378, 268, 28);
-    (new Fl_Button(296, 378, 84, 28, "Browse..."))->callback(browse_cb);
+    folder_in = new Fl_Input(20, 404, 268, 28);
+    (new Fl_Button(296, 404, 84, 28, "Browse..."))->callback(browse_cb);
 #ifdef _WIN32
     const char* home = fl_getenv("USERPROFILE");
 #else
@@ -106,13 +109,13 @@ int main(int argc, char** argv) {
     auto base = santa::u8path(home ? home : ".");
     folder_in->value(santa::u8str((std::filesystem::is_directory(base / "Desktop") ? base / "Desktop" : base) / "Secret Santa").c_str());
 
-    auto* draw = new Fl_Button(20, 418, 360, 38, "Draw names");
+    auto* draw = new Fl_Button(20, 444, 360, 38, "Draw names");
     draw->color(fl_rgb_color(176, 30, 50));
     draw->labelcolor(FL_WHITE);
     draw->labelfont(FL_HELVETICA_BOLD);
     draw->callback(draw_cb);
 
-    status = new Fl_Box(20, 462, 360, 22);
+    status = new Fl_Box(20, 488, 360, 22);
     status->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
     show_count();
 

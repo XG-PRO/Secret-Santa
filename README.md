@@ -14,9 +14,9 @@ Get the file for your system from the [latest release](https://github.com/XG-PRO
 
 1. Type each name and press Enter.
 2. Leave **No two people draw each other** ticked if you don't want A to buy for B while B buys for A.
-3. Choose a folder and click **Draw names**.
+3. Choose where to save the envelopes and click **Draw names**.
 
-Each person gets `<Name>/<Name>.txt` naming who they buy for. Send everyone only their own file.
+Each person gets a text file naming who they buy for: `<Name>/<Name>.txt`, or just `<Name>.txt` if you untick **Put each file in its own folder**. Send everyone only their own file.
 
 ## How it works
 

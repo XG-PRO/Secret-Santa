@@ -29,17 +29,19 @@ inline std::vector<size_t> draw(size_t n, bool no_mutual) {
 inline fs::path u8path(const std::string& s) { return std::u8string(s.begin(), s.end()); }
 inline std::string u8str(const fs::path& p) { auto s = p.u8string(); return {s.begin(), s.end()}; }
 
-inline fs::path envelope(const fs::path& folder, const std::string& name) {
-    return folder / u8path(name) / u8path(name + ".txt");
+// <folder>/<name>/<name>.txt, or <folder>/<name>.txt without own_folder.
+inline fs::path envelope(const fs::path& folder, const std::string& name, bool own_folder) {
+    return (own_folder ? folder / u8path(name) : folder) / u8path(name + ".txt");
 }
 
-// Writes <folder>/<name>/<name>.txt for everyone. The BOM makes Notepad and TextEdit read UTF-8.
+// Writes everyone's envelope. The BOM makes Notepad and TextEdit read UTF-8.
 inline bool write_envelopes(const fs::path& folder, const std::vector<std::string>& names,
-                            const std::vector<size_t>& target) {
+                            const std::vector<size_t>& target, bool own_folder) {
     for (size_t i = 0; i < names.size(); ++i) {
+        auto file = envelope(folder, names[i], own_folder);
         std::error_code ec;
-        fs::create_directories(folder / u8path(names[i]), ec);
-        std::ofstream f(envelope(folder, names[i]), std::ios::binary);
+        fs::create_directories(file.parent_path(), ec);
+        std::ofstream f(file, std::ios::binary);
         f << "\xEF\xBB\xBF" << "Hi " << names[i] << "!\n\nYou are the Secret Santa for: " << names[target[i]] << "\n";
         if (!f) return false;
     }
